@@ -1,0 +1,16 @@
+baseURL = "https://github.io"
+languageCode = "es-es"
+title = "Mi Web de Nicho con IA"
+theme = "papermod"
+
+relativeURLs = true
+uglyURLs = false
+
+[params]
+    homeInfoParams = { Title = "¡Bienvenido a mi Web!", Content = "Artículos automáticos generados con IA local." }
+
+[menu]
+    [[menu.main]]
+        name = "Artículos"
+        url = "/posts/"
+        weight = 10
