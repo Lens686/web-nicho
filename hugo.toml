@@ -13,4 +13,4 @@ uglyURLs = false
     [[menu.main]]
         name = "Artículos"
         url = "/posts/"
-        weight = 10
+        weight = 10 
