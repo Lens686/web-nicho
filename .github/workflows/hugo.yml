@@ -54,7 +54,7 @@ jobs:
 
   deploy:
     environment:
-      name: github-pages-v2
+      name: github-pages-v3
       url: https://github.io
     runs-on: ubuntu-latest
     needs: build
