@@ -1,0 +1,16 @@
+title = "Web Nicho Hugo"
+baseURL = "/"
+languageCode = "en-US"
+
+[params]
+theme = "minimal"
+analytics = false
+socialMedia = {
+  twitter = "#",
+  linkedin = "#"
+}
+
+[[author]]
+name = "Lenis"
+email = "contact@example.com"
+description = "Developer"
