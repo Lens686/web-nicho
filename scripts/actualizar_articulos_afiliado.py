@@ -118,6 +118,11 @@ def parse_args() -> argparse.Namespace:
         help="Reprocesa tambien articulos que ya tienen bloques de afiliado.",
     )
     parser.add_argument(
+        "--allow-generic-rewrite",
+        action="store_true",
+        help="Permite usar el conversor generico. No recomendado para articulos finales.",
+    )
+    parser.add_argument(
         "--audience",
         default="la mayoria de usuarios",
         help="Publico por defecto si no puede deducirse del titulo.",
@@ -132,6 +137,15 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
+    if args.apply and not args.allow_generic_rewrite:
+        print(
+            "Bloqueado: este conversor genera articulos demasiado genericos. "
+            "Usa scripts/asistente_afiliados.py para enlaces o pasa "
+            "--allow-generic-rewrite si sabes que quieres sobrescribir contenido.",
+            file=sys.stderr,
+        )
+        return 2
+
     content_dir = Path(args.content_dir)
     if not content_dir.is_absolute():
         content_dir = ROOT / content_dir
