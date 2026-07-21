@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import re
 import shutil
 import sys
 from datetime import datetime, timezone
@@ -18,6 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 POSTS_DIR = ROOT / "content" / "post"
 DEFAULT_CSV = ROOT / "data" / "productos_afiliados.csv"
 DEFAULT_BACKUP_ROOT = ROOT / ".article_backups"
+AFFILIATE_RE = re.compile(r"\{\{<\s*afiliado\b.*?>\}\}", re.DOTALL)
+TITLE_ATTR_RE = re.compile(r'title="([^"]*)"')
 
 
 def shortcode(row: dict[str, str]) -> str:
@@ -30,6 +33,40 @@ def shortcode(row: dict[str, str]) -> str:
     if not attrs:
         raise ValueError("fila sin datos utiles para el shortcode")
     return "{{< afiliado " + " ".join(attrs) + " >}}"
+
+
+def remove_blocks_with_title(text: str, title: str) -> str:
+    def replace(match: re.Match[str]) -> str:
+        block = match.group(0)
+        title_match = TITLE_ATTR_RE.search(block)
+        if title_match and title_match.group(1).strip().lower() == title.strip().lower():
+            return ""
+        return block
+
+    cleaned = AFFILIATE_RE.sub(replace, text)
+    return re.sub(r"\n{3,}", "\n\n", cleaned)
+
+
+def replace_pending_after_heading(text: str, heading: str, block: str) -> tuple[str, bool]:
+    heading_marker = "\n## " + heading.strip()
+    heading_index = text.lower().find(heading_marker.lower())
+    if heading_index < 0:
+        return text, False
+
+    next_heading = text.find("\n## ", heading_index + len(heading_marker))
+    section_end = next_heading if next_heading >= 0 else len(text)
+    section = text[heading_index:section_end]
+    match = AFFILIATE_RE.search(section)
+    if not match:
+        return text, False
+
+    existing = match.group(0)
+    if "Enlace pendiente" not in existing and 'store="' not in existing:
+        return text, False
+
+    start = heading_index + match.start()
+    end = heading_index + match.end()
+    return text[:start] + block + text[end:], True
 
 
 def insert_after_intro(text: str, block: str) -> str:
@@ -67,13 +104,21 @@ def apply_row(text: str, row: dict[str, str]) -> str:
     if block in text:
         return text
 
+    title = (row.get("title") or "").strip()
+    if title:
+        text = remove_blocks_with_title(text, title)
+
     position = (row.get("position") or "end").strip()
     if position == "after_intro":
         return insert_after_intro(text, block)
     if position == "end":
         return insert_at_end(text, block)
     if position.startswith("section:"):
-        return insert_before_section(text, position.split(":", 1)[1], block)
+        heading = position.split(":", 1)[1]
+        replaced, did_replace = replace_pending_after_heading(text, heading, block)
+        if did_replace:
+            return replaced
+        return insert_before_section(text, heading, block)
     raise ValueError(f"position no valida: {position}")
 
 
@@ -84,9 +129,43 @@ def backup_file(path: Path, backup_root: Path, stamp: str) -> Path:
     return backup_path
 
 
+def detect_dialect(sample: str) -> csv.Dialect:
+    try:
+        return csv.Sniffer().sniff(sample, delimiters=";,	")
+    except csv.Error:
+        dialect = csv.excel()
+        dialect.delimiter = ";"
+        return dialect
+
+
 def load_rows(csv_path: Path) -> list[dict[str, str]]:
+    sample = csv_path.read_text(encoding="utf-8-sig")[:4096]
+    dialect = detect_dialect(sample)
     with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
-        return list(csv.DictReader(handle))
+        return list(csv.DictReader(handle, dialect=dialect))
+
+
+def validate_row(row: dict[str, str], row_number: int) -> list[str]:
+    errors = []
+    required = ("article", "position", "title", "description", "url")
+    for key in required:
+        if not (row.get(key) or "").strip():
+            errors.append(f"fila {row_number}: falta {key}")
+
+    url = (row.get("url") or "").strip()
+    if url and not url.startswith(("http://", "https://")):
+        errors.append(f"fila {row_number}: url no parece enlace valido: {url}")
+
+    image = (row.get("image") or "").strip()
+    if image and not image.startswith(("http://", "https://", "/")):
+        errors.append(f"fila {row_number}: image no parece URL/ruta valida: {image}")
+
+    extra = row.get(None)
+    if extra:
+        errors.append(
+            f"fila {row_number}: sobran columnas; usa separador ';' o pon entre comillas textos con comas"
+        )
+    return errors
 
 
 def parse_args() -> argparse.Namespace:
@@ -115,16 +194,25 @@ def main() -> int:
         rows = rows[: args.limit]
 
     by_article: dict[Path, list[dict[str, str]]] = {}
-    for row in rows:
-        article = (row.get("article") or "").strip()
-        if not article:
-            print("SKIP fila sin article")
+    had_errors = False
+    for index, row in enumerate(rows, start=2):
+        row_errors = validate_row(row, index)
+        if row_errors:
+            had_errors = True
+            for error in row_errors:
+                print(f"ERROR {error}", file=sys.stderr)
             continue
+
+        article = (row.get("article") or "").strip()
         path = POSTS_DIR / article
         if not path.exists():
             print(f"SKIP no existe articulo: {path}")
             continue
         by_article.setdefault(path, []).append(row)
+
+    if had_errors:
+        print("Corrige el CSV antes de aplicar cambios.", file=sys.stderr)
+        return 2
 
     changed = 0
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
