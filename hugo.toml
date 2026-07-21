@@ -1,7 +1,7 @@
 baseURL = "https://lens686.github.io/web-nicho/"
 languageCode = "es-es"
 defaultContentLanguage = "es"
-title = "Mi Web de Nicho con IA"
+title = "Guías de Compra Prácticas"
 theme = "papermod"
 
 canonifyURLs = false
@@ -14,7 +14,7 @@ uglyURLs = false
   ShowShareButtons = false
   ShowPostNavLinks = true
   ShowBreadCrumbs = true
-  homeInfoParams = { Title = "Bienvenido a mi Web", Content = "Artículos automáticos generados con IA local." }
+  homeInfoParams = { Title = "Guías de compra claras para elegir mejor", Content = "Comparativas, consejos y recomendaciones prácticas para productos de hogar, cocina, tecnología, herramientas y actividades al aire libre." }
 
   [params.footer]
     text = "[Aviso legal](https://lens686.github.io/web-nicho/aviso-legal/) · [Privacidad](https://lens686.github.io/web-nicho/privacidad/) · [Cookies](https://lens686.github.io/web-nicho/cookies/) · [Afiliados](https://lens686.github.io/web-nicho/afiliados/)"
