@@ -1,3 +1,7 @@
 public/
 .hugo_build.lock
 resources/_gen/
+.article_backups/
+tmp_batch_check/
+__pycache__/
+scripts/__pycache__/
