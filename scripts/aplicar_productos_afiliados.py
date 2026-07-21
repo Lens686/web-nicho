@@ -47,6 +47,18 @@ def remove_blocks_with_title(text: str, title: str) -> str:
     return re.sub(r"\n{3,}", "\n\n", cleaned)
 
 
+def replace_block_with_title(text: str, title: str, new_block: str) -> tuple[str, bool]:
+    def replace(match: re.Match[str]) -> str:
+        block = match.group(0)
+        title_match = TITLE_ATTR_RE.search(block)
+        if title_match and title_match.group(1).strip().lower() == title.strip().lower():
+            return new_block
+        return block
+
+    updated = AFFILIATE_RE.sub(replace, text)
+    return updated, updated != text
+
+
 def replace_pending_after_heading(text: str, heading: str, block: str) -> tuple[str, bool]:
     heading_marker = "\n## " + heading.strip()
     heading_index = text.lower().find(heading_marker.lower())
@@ -104,11 +116,18 @@ def apply_row(text: str, row: dict[str, str]) -> str:
     if block in text:
         return text
 
+    position = (row.get("position") or "end").strip()
+    if position == "replace":
+        title = (row.get("title") or "").strip()
+        if not title:
+            raise ValueError("position replace requiere title")
+        updated, did_replace = replace_block_with_title(text, title, block)
+        return updated if did_replace else text
+
     title = (row.get("title") or "").strip()
     if title:
         text = remove_blocks_with_title(text, title)
 
-    position = (row.get("position") or "end").strip()
     if position == "after_intro":
         return insert_after_intro(text, block)
     if position == "end":
@@ -147,7 +166,7 @@ def load_rows(csv_path: Path) -> list[dict[str, str]]:
 
 def validate_row(row: dict[str, str], row_number: int) -> list[str]:
     errors = []
-    required = ("article", "position", "title", "description", "url")
+    required = ("article", "position", "title", "description")
     for key in required:
         if not (row.get(key) or "").strip():
             errors.append(f"fila {row_number}: falta {key}")
@@ -175,6 +194,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--csv", default=str(DEFAULT_CSV), help="CSV de productos. Por defecto data/productos_afiliados.csv.")
     parser.add_argument("--apply", action="store_true", help="Aplica cambios. Sin esto solo simula.")
     parser.add_argument("--limit", type=int, default=0, help="Procesa solo las primeras N filas del CSV.")
+    parser.add_argument("--skip-empty-url", action="store_true", default=True, help="Omite filas sin URL. Activado por defecto.")
     parser.add_argument("--backup-dir", default=str(DEFAULT_BACKUP_ROOT), help="Carpeta de copias de seguridad.")
     return parser.parse_args()
 
@@ -196,6 +216,9 @@ def main() -> int:
     by_article: dict[Path, list[dict[str, str]]] = {}
     had_errors = False
     for index, row in enumerate(rows, start=2):
+        if args.skip_empty_url and not (row.get("url") or "").strip():
+            continue
+
         row_errors = validate_row(row, index)
         if row_errors:
             had_errors = True
