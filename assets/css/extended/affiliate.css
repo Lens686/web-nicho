@@ -13,6 +13,15 @@
   min-width: 0;
 }
 
+.affiliate-box__image {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  flex: 0 0 96px;
+  height: 96px;
+  object-fit: contain;
+  width: 96px;
+}
+
 .affiliate-box__label {
   color: var(--secondary);
   font-size: 0.82rem;
@@ -43,6 +52,10 @@
   .affiliate-box {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .affiliate-box__image {
+    align-self: center;
   }
 
   .affiliate-box__button {

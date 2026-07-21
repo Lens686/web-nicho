@@ -3,7 +3,11 @@
 {{- $store := .Get "store" | default "Ver tienda" -}}
 {{- $text := .Get "text" | default "Consultar precio y disponibilidad" -}}
 {{- $description := .Get "description" -}}
+{{- $image := .Get "image" -}}
 <aside class="affiliate-box">
+  {{- with $image }}
+    <img class="affiliate-box__image" src="{{ . }}" alt="{{ $title }}" loading="lazy">
+  {{- end }}
   <div class="affiliate-box__content">
     <p class="affiliate-box__label">Enlace de afiliado</p>
     <strong>{{ $title }}</strong>

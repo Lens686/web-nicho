@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""Inserta productos de afiliado desde un CSV en articulos Hugo.
+
+Modo seguro por defecto: sin --apply solo muestra lo que haria.
+"""
+
+from __future__ import annotations
+
+import argparse
+import csv
+import shutil
+import sys
+from datetime import datetime, timezone
+from pathlib import Path
+
+
+ROOT = Path(__file__).resolve().parents[1]
+POSTS_DIR = ROOT / "content" / "post"
+DEFAULT_CSV = ROOT / "data" / "productos_afiliados.csv"
+DEFAULT_BACKUP_ROOT = ROOT / ".article_backups"
+
+
+def shortcode(row: dict[str, str]) -> str:
+    attrs = []
+    for key in ("url", "title", "description", "image", "text"):
+        value = (row.get(key) or "").strip()
+        if value:
+            escaped = value.replace('"', '\\"')
+            attrs.append(f'{key}="{escaped}"')
+    if not attrs:
+        raise ValueError("fila sin datos utiles para el shortcode")
+    return "{{< afiliado " + " ".join(attrs) + " >}}"
+
+
+def insert_after_intro(text: str, block: str) -> str:
+    marker = "Este articulo puede contener enlaces de afiliado."
+    marker_index = text.find(marker)
+    if marker_index >= 0:
+        next_blank = text.find("\n\n", marker_index)
+        if next_blank >= 0:
+            return text[: next_blank + 2] + block + "\n\n" + text[next_blank + 2 :]
+
+    front_end = text.find("---", 3)
+    if text.startswith("---") and front_end >= 0:
+        body_start = text.find("\n", front_end + 3)
+        if body_start >= 0:
+            first_blank = text.find("\n\n", body_start + 1)
+            if first_blank >= 0:
+                return text[: first_blank + 2] + block + "\n\n" + text[first_blank + 2 :]
+    return block + "\n\n" + text
+
+
+def insert_at_end(text: str, block: str) -> str:
+    return text.rstrip() + "\n\n" + block + "\n"
+
+
+def insert_before_section(text: str, heading: str, block: str) -> str:
+    section_marker = "\n## " + heading.strip()
+    index = text.lower().find(section_marker.lower())
+    if index < 0:
+        return insert_at_end(text, block)
+    return text[:index].rstrip() + "\n\n" + block + "\n" + text[index:]
+
+
+def apply_row(text: str, row: dict[str, str]) -> str:
+    block = shortcode(row)
+    if block in text:
+        return text
+
+    position = (row.get("position") or "end").strip()
+    if position == "after_intro":
+        return insert_after_intro(text, block)
+    if position == "end":
+        return insert_at_end(text, block)
+    if position.startswith("section:"):
+        return insert_before_section(text, position.split(":", 1)[1], block)
+    raise ValueError(f"position no valida: {position}")
+
+
+def backup_file(path: Path, backup_root: Path, stamp: str) -> Path:
+    backup_path = backup_root / stamp / path.name
+    backup_path.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(path, backup_path)
+    return backup_path
+
+
+def load_rows(csv_path: Path) -> list[dict[str, str]]:
+    with csv_path.open("r", encoding="utf-8-sig", newline="") as handle:
+        return list(csv.DictReader(handle))
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Inserta bloques de afiliado con enlace e imagen desde un CSV."
+    )
+    parser.add_argument("--csv", default=str(DEFAULT_CSV), help="CSV de productos. Por defecto data/productos_afiliados.csv.")
+    parser.add_argument("--apply", action="store_true", help="Aplica cambios. Sin esto solo simula.")
+    parser.add_argument("--limit", type=int, default=0, help="Procesa solo las primeras N filas del CSV.")
+    parser.add_argument("--backup-dir", default=str(DEFAULT_BACKUP_ROOT), help="Carpeta de copias de seguridad.")
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    csv_path = Path(args.csv)
+    if not csv_path.is_absolute():
+        csv_path = ROOT / csv_path
+    if not csv_path.exists():
+        print(f"No existe el CSV: {csv_path}", file=sys.stderr)
+        print("Copia data/productos_afiliados.example.csv como data/productos_afiliados.csv y rellenalo.", file=sys.stderr)
+        return 2
+
+    rows = load_rows(csv_path)
+    if args.limit > 0:
+        rows = rows[: args.limit]
+
+    by_article: dict[Path, list[dict[str, str]]] = {}
+    for row in rows:
+        article = (row.get("article") or "").strip()
+        if not article:
+            print("SKIP fila sin article")
+            continue
+        path = POSTS_DIR / article
+        if not path.exists():
+            print(f"SKIP no existe articulo: {path}")
+            continue
+        by_article.setdefault(path, []).append(row)
+
+    changed = 0
+    stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+    backup_root = Path(args.backup_dir)
+    if not backup_root.is_absolute():
+        backup_root = ROOT / backup_root
+
+    for path, article_rows in by_article.items():
+        original = path.read_text(encoding="utf-8-sig")
+        updated = original
+        for row in article_rows:
+            updated = apply_row(updated, row)
+
+        if updated == original:
+            print(f"SKIP sin cambios: {path}")
+            continue
+
+        changed += 1
+        if args.apply:
+            backup_path = backup_file(path, backup_root, stamp)
+            path.write_text(updated, encoding="utf-8", newline="\n")
+            print(f"OK actualizado: {path} (backup: {backup_path})")
+        else:
+            print(f"DRY-RUN actualizaria: {path} con {len(article_rows)} producto(s)")
+
+    mode = "aplicado" if args.apply else "simulacion"
+    print(f"Resumen ({mode}): {changed} articulo(s) con cambios, {len(rows)} fila(s) revisadas.")
+    if not args.apply:
+        print("Ejecuta de nuevo con --apply para escribir cambios.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
