@@ -1,16 +1,22 @@
-baseURL = "https://github.io"
+baseURL = "https://lens686.github.io/web-nicho/"
 languageCode = "es-es"
 title = "Mi Web de Nicho con IA"
 theme = "papermod"
 
-relativeURLs = true
+canonifyURLs = true
+relativeURLs = false
 uglyURLs = false
 
 [params]
-    homeInfoParams = { Title = "¡Bienvenido a mi Web!", Content = "Artículos automáticos generados con IA local." }
+  defaultTheme = "auto"
+  ShowReadingTime = true
+  ShowShareButtons = false
+  ShowPostNavLinks = true
+  ShowBreadCrumbs = true
+  homeInfoParams = { Title = "Bienvenido a mi Web", Content = "Artículos automáticos generados con IA local." }
 
 [menu]
-    [[menu.main]]
-        name = "Artículos"
-        url = "/posts/"
-        weight = 10 
+  [[menu.main]]
+    name = "Artículos"
+    url = "/post/"
+    weight = 10
