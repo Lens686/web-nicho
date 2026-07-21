@@ -1,0 +1,19 @@
+{{- $url := .Get "url" -}}
+{{- $title := .Get "title" | default "Producto recomendado" -}}
+{{- $store := .Get "store" | default "Ver tienda" -}}
+{{- $text := .Get "text" | default "Consultar precio y disponibilidad" -}}
+{{- $description := .Get "description" -}}
+<aside class="affiliate-box">
+  <div class="affiliate-box__content">
+    <p class="affiliate-box__label">Enlace de afiliado</p>
+    <strong>{{ $title }}</strong>
+    {{- with $description }}
+      <p>{{ . }}</p>
+    {{- end }}
+  </div>
+  {{- if $url }}
+    <a class="affiliate-box__button" href="{{ $url }}" target="_blank" rel="nofollow sponsored noopener">{{ $text }}</a>
+  {{- else }}
+    <span class="affiliate-box__button affiliate-box__button--disabled">{{ $store }}</span>
+  {{- end }}
+</aside>

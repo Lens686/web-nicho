@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://lens686.github.io/web-nicho/sitemap.xml

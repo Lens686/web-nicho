@@ -1,0 +1,51 @@
+.affiliate-box {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1.5rem 0;
+  padding: 1rem;
+}
+
+.affiliate-box__content {
+  min-width: 0;
+}
+
+.affiliate-box__label {
+  color: var(--secondary);
+  font-size: 0.82rem;
+  margin: 0 0 0.25rem;
+  text-transform: uppercase;
+}
+
+.affiliate-box__content p:last-child {
+  margin-bottom: 0;
+}
+
+.affiliate-box__button {
+  background: var(--primary);
+  border-radius: 6px;
+  color: var(--theme);
+  flex: 0 0 auto;
+  font-weight: 600;
+  padding: 0.65rem 0.9rem;
+  text-decoration: none;
+}
+
+.affiliate-box__button--disabled {
+  background: var(--tertiary);
+  color: var(--secondary);
+}
+
+@media (max-width: 640px) {
+  .affiliate-box {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .affiliate-box__button {
+    text-align: center;
+  }
+}

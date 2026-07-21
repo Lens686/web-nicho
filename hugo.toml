@@ -1,9 +1,10 @@
 baseURL = "https://lens686.github.io/web-nicho/"
 languageCode = "es-es"
+defaultContentLanguage = "es"
 title = "Mi Web de Nicho con IA"
 theme = "papermod"
 
-canonifyURLs = true
+canonifyURLs = false
 relativeURLs = false
 uglyURLs = false
 
@@ -15,8 +16,21 @@ uglyURLs = false
   ShowBreadCrumbs = true
   homeInfoParams = { Title = "Bienvenido a mi Web", Content = "Artículos automáticos generados con IA local." }
 
+  [params.footer]
+    text = "[Aviso legal](https://lens686.github.io/web-nicho/aviso-legal/) · [Privacidad](https://lens686.github.io/web-nicho/privacidad/) · [Cookies](https://lens686.github.io/web-nicho/cookies/) · [Afiliados](https://lens686.github.io/web-nicho/afiliados/)"
+
 [menu]
   [[menu.main]]
     name = "Artículos"
     url = "/post/"
     weight = 10
+
+  [[menu.main]]
+    name = "Afiliados"
+    url = "/afiliados/"
+    weight = 20
+
+  [[menu.main]]
+    name = "Contacto"
+    url = "/contacto/"
+    weight = 30
