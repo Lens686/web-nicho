@@ -8,6 +8,8 @@ Empezar en astrofotografia no exige comprar una camara astronomica cara desde el
 
 Este articulo puede contener enlaces de afiliado. Si compras desde uno de ellos, la web puede recibir una comision sin coste adicional para ti.
 
+{{< afiliado url="https://amzn.to/4gPAE61" title="Adaptador de movil para telescopio" description="Accesorio practico para sujetar el smartphone al ocular y empezar a fotografiar la Luna o planetas brillantes." text="Ver en Amazon" >}}
+
 {{< afiliado url="https://www.amazon.es/Diyeeni-Smartphone-microscopio-Largo-Vista-binoculares/dp/B07YB3D3GJ?__mk_es_ES=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=2YKLZ8RZD0F5M&dib=eyJ2IjoiMSJ9.hS2RrMPCMvvy3Js2yueaza4_Rytdt_VN8Zj7I3P-34EKxvGgMfUSrz9HEyQJ-OJhnI1Ws1DqkeUG2hheqbcQYlP_2vVj_BXJw5C7VxYvgqCnc8wff7uIO8NlfikzqDhdhgTW79s5OQhwDgT-NXhbkxhZblEJGUFQc6rEXqy1Tb9SBC4pq8LDe220Oeny94oUViiU3-sOqAeuS9Yo_v5pLfl0IeLjReboKHHpLxlKNXvTLSxKd20IYWua_JqEtrb4MQl6ONETfQ4AputBwC_sWdJz36-DCJYfW8BaXQSsd64.nSHWsuzdVBLSBwZDMGNpiq-4XTNAGXTLU44hIP9_suU&dib_tag=se&keywords=adaptador+movil+telescopio+astrofotografia&qid=1784638559&sprefix=adaptador+movil+telescopio+astrofotografia%2Caps%2C89&sr=8-1-spons&aref=LPuh5JIwjk&sp_csd=d2lkZ2V0TmFtZT1zcF9hdGY&psc=1&linkCode=ll2&tag=guiascompra-21&linkId=80b2e793ee996664417646b9fabfabf7&ref_=as_li_ss_tl" title="Adaptador de movil para telescopio" description="Accesorio practico para sujetar el smartphone al ocular y empezar a fotografiar la Luna o planetas brillantes." text="Ver en Amazon" >}}
 
 ## Que mirar antes de comprar
@@ -44,6 +46,8 @@ Inconvenientes:
 - No sustituye a una camara astronomica dedicada.
 - Puede vibrar si el soporte no queda firme.
 
+{{< afiliado url="Accesorio sencillo para reducir brillo y observar la Luna con mas comodidad." title="Filtro lunar para telescopio 1" description="25 pulgadas" image="https://amzn.to/45eodJX" >}}
+
 ## Filtro lunar
 
 Un filtro lunar ayuda a reducir el brillo de la Luna cuando se observa con telescopio. Tambien puede hacer mas comoda la captura con movil, especialmente en fases muy iluminadas.
@@ -73,3 +77,5 @@ Una linterna roja parece un accesorio menor, pero resulta muy util para montar e
 Para empezar en astrofotografia con un telescopio de iniciacion, el orden mas razonable es: adaptador de movil, filtro lunar, linterna roja y, despues, una Barlow 2x si el telescopio y las condiciones de observacion lo permiten.
 
 El adaptador de movil es el primer accesorio que probaria porque permite obtener resultados visibles sin cambiar todo el equipo.
+
+{{< afiliado url="https://amzn.to/4wg546c" title="Lente Barlow 2x para telescopio" description="Mejora opcional para aumentar la imagen en observacion lunar y planetaria." text="Ver en Amazon" >}}
